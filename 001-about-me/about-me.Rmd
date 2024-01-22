@@ -169,7 +169,11 @@ what we want to do with the data, etc.
 
 Here's a silly plot!
 ```{r}
+library(tidyverse)
+silly <- read_delim("references.bib", delim = "\n", col_names = FALSE)
+silly_CountByLine <- mutate(silly, "line_length" = nchar(X1))
 
+ggplot(silly_CountByLine, aes(x = line_length)) + geom_histogram(bins = 10)
 ```
 
 
