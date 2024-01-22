@@ -1,0 +1,177 @@
+---
+title: "About Me"
+author: "Ellen Campbell"
+output:
+  pdf_document:
+    toc: yes
+  word_document:
+    toc: yes
+  html_document:
+    toc: yes
+bibliography: references.bib
+---
+
+# Who I am and where I came from
+
+I grew up near UC Davis and as a child was absolutely fascinated with the weird
+creatures of the deep sea and was convinced I wanted to be a marine biologist
+when I grew up.  The more I learned the more my interests broadened to all science
+and math.  I attended [UC Santa Cruz](https://www.ucsc.edu/), and graduated in 
+2014 with a B.S in biology and a minor in applied math and statistics. I joined 
+Carlos Garza’s lab as one of his three full time lab staff immediately after I 
+graduated and have been working there ever since.
+
+When I'm not working, I enjoy:
+
+1. Hiking
+1. Baking
+1. Brewing
+1. Knitting
+
+
+Here's a picture of my adorable cat, since apparently the only photos I have on my 
+computer right now are of her
+
+```{r me_pic, echo=FALSE, out.width="500px"}
+knitr::include_graphics("images/cat.jpg", auto_pdf = TRUE)
+```
+
+# Research Interests
+
+I really enjoy the more trouble-shooting/practical work that we do in the lab. 
+I’m less invested in a particular topic, and generally enjoy the more specific 
+questions we approach in lab, like why a specific protocol has stopped working, 
+or how do we assess the quality of genotypes for types of genotyping data that we
+haven't generated before. I've really enjoyed being part of the lab’s transition 
+towards sequencing-based genotyping and dialing in our panels for those analyses
+and look forward to the new challenges that whole genome sequencing brings to the
+table.
+
+## Influential papers
+
+We've been doing a lot of GTseq [@campbell2014GTseq] recently.  Been fine tuning
+all our panels of assays and trying to get everything in balance and make sure
+all the loci we expect to be in there are behaving and then once that's all 
+settled I need to update all the associated files in our snakemake pipeline.  
+We also dusted off the rockfish panel Diana used in her paper @Baetscher2017Microhaplotypes 
+for some rockfish species IDs.
+
+## The mathematics behind my research
+
+This is a perpetually useful formula for dilutions that we use daily:
+
+$$
+C_1 V_1 = C_2V_2
+$$
+Nei's unbiased heterozygosity [@nei1974sampling] which Jennifer Leon and I wrote
+a function for in our python replacement of microsatellite toolkit that I should
+go back to and finish....
+
+$$
+\hat H = \frac{n}{n-1}(1 - \sum_{i=1}^{I} p_i^2)
+$$
+
+## My computing experience
+
+I'm most comfortable working in R, and if I need to poke at a dataset will do it
+more often in R than anything else.  Used mostly base R prior to joining this lab
+and have been using the tidyverse ever since!
+
+Here's a little blob of R code that's the function for filtering data that I
+used in my edits to Neil's microhaplotopia package:
+```
+filter_raw_microhap_data <- function(hap_raw,
+                                     haplotype_depth,
+                                     total_depth,
+                                     allele_balance) {
+  hap_raw %>%
+    filter(allele.balance >= allele_balance) %>% #Allele balance filter
+    filter(depth >= haplotype_depth) %>% #individual allele depth filter
+    group_by(group, indiv.ID, locus) %>%
+    mutate(TotalDepth = sum(depth), NAlleles = n()) %>% #Add columns for total depth and number of alleles per locus per individual
+    ungroup() %>%
+    filter(TotalDepth >= total_depth)
+}
+```
+
+I have a little experience in python as well.  I've been working with python for
+about as long as R, but I use it way less, so I know my way around, but writing
+code takes a lot more googling than an R script does.  I typically use python for
+automated little blobs of script, like this one that I wrote to replace the 
+RDBMerge macro that we used to use in excel to merge our metadata sheets before 
+importing them into the repository.
+
+```
+#Let's see if we can write a script that pulls the metadata we need out of
+#metadata excel files
+
+#Pull in libraries needed
+import pandas as pd
+import os
+
+#Avoid truncating long numbers by setting float format to display 12 digits
+pd.options.display.float_format = "{:.12f}".format
+
+#Find all the files in the current directory
+files = sorted([file for file in os.listdir("./") if file.endswith(('.xlsm', '.xlsx', '.xls'))])
+
+#Read in files!!
+
+#Initialize data frame to hold merged metadata
+Repository = pd.DataFrame()
+Freshwater = pd.DataFrame()
+Marine = pd.DataFrame()
+
+
+#Loop over files
+for file in files:
+    #Read in repo data
+    AllTabs = pd.read_excel(file, sheet_name = ["Repository","Freshwater", "Marine"], index_col = 0)
+    Repository = pd.concat([Repository,AllTabs["Repository"]])
+    Freshwater = pd.concat([Freshwater,AllTabs["Freshwater"]])
+    Marine = pd.concat([Marine,AllTabs["Marine"]])
+
+
+writer = pd.ExcelWriter("Merged.xlsx", engine = 'openpyxl')
+Repository.to_excel(writer, sheet_name = 'Repository', index = True, header = True)
+Freshwater.to_excel(writer, sheet_name = 'Freshwater', index = True, header = True)
+Marine.to_excel(writer, sheet_name = 'Marine', index = True, header = True)
+writer.close()
+```
+
+I'm comfortable in a UNIX terminal and easily wander around, move files, run 
+scripts, decipher bash shell scripts, but would like to be better at poking at
+things more in depth on the command line (particularly with using grep, awk, and 
+sed--all of which I've seen used, know they can be really powerful, but really
+struggle with writing my own lines of code using them.)
+
+## What I hope to get out of this class
+
+Three things I hope to get out of this class are
+
+* Continue to improve my R and UNIX skills.  While I'm comfortable using both, I
+feel like I always pick up something new and useful every time I take this class
+so I'm excited to dive back in and see what I can improve and get better at this
+time around!
+* Refresh my SLURM skills and get comfortable again using a cluster.  We've gone
+through this the past few times I've taken this class, but I haven't used any of
+this knowledge since the last time I took this class and am definitely a little
+rusty and could use a refresher on this front.
+* Get more familiar with WGS data!  We've been running a lot more whole genome 
+sequencing libraries and it'd be nice to know the downstream analysis steps a 
+little better.  With GTseq data, we can do a little pre-processing, check read 
+depths, and get a sense for how the run went.  I'm not quite as confortable with
+WGS data and would like to get to a point where when we get data in, we can tell
+if the run was sucessful, if anything looks off, if we have enoguh reads to do
+what we want to do with the data, etc.
+
+# Evaluating some R code
+
+Here's a silly plot!
+```{r}
+
+```
+
+
+# Citations
+
